@@ -20,7 +20,9 @@ class HomeScreen extends StatelessWidget {
               isScrollControlled: true,
               context: context,
               builder: (context) {
-                return Column(
+                return Column(  
+                   mainAxisSize: MainAxisSize.min,
+                   crossAxisAlignment: CrossAxisAlignment.start,
                
                   children: [
                     TextField(
