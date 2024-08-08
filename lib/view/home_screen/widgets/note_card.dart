@@ -1,9 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 
-class NoteCard extends StatelessWidget {
+class NoteCard extends StatefulWidget {
+  NoteCard(
+      {super.key,
+      this.ondelete,
+      required this.title,
+      required this.des,
+      required this.date});
+  final String title;
+  final String des;
+  final String date;
 
-        NoteCard({super.key});
-final  
+  final void Function()? ondelete;
+
+  @override
+  State<NoteCard> createState() => _NoteCardState();
+}
+
+class _NoteCardState extends State<NoteCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -18,24 +33,21 @@ final
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'data',
+                  widget.title,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
                 Spacer(),
                 IconButton(onPressed: () {}, icon: Icon(Icons.edit)),
-                IconButton(
-                    onPressed: () {
-                       Navigator.pop(context);
-                    },
-                    icon: Icon(Icons.delete)),
+                IconButton(onPressed:widget.ondelete, icon: Icon(Icons.delete)),
               ],
             ),
-            Text('data'),
+            
+            Text(widget.title),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
-              children: [Text('data'), Icon(Icons.share)],
+              children: [Text(widget.date), Icon(Icons.share)],
             )
           ],
-        ));
+        ));  
   }
 }

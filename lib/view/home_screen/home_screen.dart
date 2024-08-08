@@ -3,19 +3,30 @@ import 'package:noteapp/view/dummydb.dart';
 import 'package:noteapp/view/home_screen/widgets/note_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+  
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  TextEditingController titlecontroller = TextEditingController();
+  TextEditingController descontroller = TextEditingController();
+  TextEditingController datecontroller = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: ListView.separated(
           padding: EdgeInsets.all(10),
-          itemBuilder: (context, index) => NoteCard(),
+          itemBuilder: (context, index) => NoteCard(
+                title: titlecontroller.text,
+                des: descontroller.text,
+                date: datecontroller.text,
+                ondelete: () {
+                  Dummydb.notlist.removeAt(index);
+                },
+              ),
           separatorBuilder: (context, index) => SizedBox(
                 height: 10,
               ),
@@ -33,6 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       TextField(
+                        controller: titlecontroller,
                         decoration: InputDecoration(
                           labelText: 'Title',
                           border: OutlineInputBorder(
@@ -44,12 +56,13 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 20,
                       ),
                       TextField(
+                        controller: descontroller,
                         maxLines: 5,
                         decoration: InputDecoration(
                           labelText: 'Description',
-                          enabledBorder: OutlineInputBorder(
+                          border: OutlineInputBorder(
                               borderSide: BorderSide(
-                                width: 1,
+                                // width: 1,
                               ),
                               borderRadius: BorderRadius.circular(15)),
                         ),
@@ -58,8 +71,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         height: 20,
                       ),
                       TextField(
+                        controller: datecontroller,
                         decoration: InputDecoration(
-                          labelText: 'Title',
+                          labelText: 'Date',
                           border: OutlineInputBorder(
                               borderSide: BorderSide(),
                               borderRadius: BorderRadius.circular(15)),
@@ -81,11 +95,11 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Container(
                                   height: 40,
                                   decoration: BoxDecoration(
-                                  
                                     borderRadius: BorderRadius.circular(15),
                                     color: Colors.red,
                                   ),
-                               child: Center(child: Text('cancel')), ),
+                                  child: Center(child: Text('cancel')),
+                                ),
                               ),
                             ),
                           ),
@@ -95,21 +109,25 @@ class _HomeScreenState extends State<HomeScreen> {
                           Expanded(
                             child: InkWell(
                               onTap: () {
-                                Dummydb.notlist.add('value');
                                 setState(() {
-                                  
+                                  Dummydb.notlist.add({
+                                    'title': titlecontroller.text,
+                                    'des': descontroller.text,
+                                    'date': datecontroller.text,
+                                  })
+                                  ;
+                            
                                 });
-
-                                
+                                    Navigator.pop(context);
                               },
                               child: Container(
-                              
                                 height: 40,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(15),
                                   color: Colors.green,
                                 ),
-                              child: Center(child: Text('save')),),
+                                child: Center(child: Text('save')),
+                              ),
                             ),
                           )
                         ],

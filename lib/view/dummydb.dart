@@ -1,5 +1,5 @@
 class Dummydb {
-  static const  notlist=[
+  static List  notlist=[
 
   ];
   
