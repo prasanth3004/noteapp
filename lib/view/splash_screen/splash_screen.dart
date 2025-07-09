@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:noteapp/utils/animation_constents.dart';
 import 'package:noteapp/view/home_screen/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -28,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Center(
           child: Lottie.asset(
-              'assets/annimations/Animation - 1721886064460.json')),
+              AnimationConstents.SPLASH_NOTES)),
     );
   }
 }
