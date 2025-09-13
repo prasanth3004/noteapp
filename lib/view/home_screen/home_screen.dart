@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:noteapp/view/detail_screen/detail_screen.dart';
+import 'package:hive_flutter/adapters.dart';
+import 'package:intl/intl.dart';
+import 'package:noteapp/utils/appsections.dart';
+
 import 'package:noteapp/view/dummydb.dart';
 import 'package:noteapp/view/home_screen/widgets/note_card.dart';
 
@@ -15,48 +18,65 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController descontroller = TextEditingController();
   TextEditingController datecontroller = TextEditingController();
   int selectedIndex = 0;
+  //step 2
+  var box = Hive.box(Appsections.NOTEBOX);
+  List notekeys = []; //to store keys
+
   @override
-  Widget build(BuildContext context) {
+  void initState() {
+    notekeys = box.keys.toList();
+
+    setState(() {}); //to set initial vallu
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+    Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
         body: ListView.separated(
             padding: EdgeInsets.all(10),
-            itemBuilder: (context, index) => InkWell(
-              onTap: () =>Navigator.push( context,MaterialPageRoute(builder: (context) => DetailScreen(title: Dummydb.notlist[index]['title'], des: Dummydb.notlist[index]['des'], date: Dummydb.notlist[index]['date'], detailColor: Dummydb.noteColors[Dummydb.notlist[index]['ColorIndex']],),)) ,
-              child: NoteCard(
-                 noteColor:Dummydb.noteColors[Dummydb.notlist[index]['ColorIndex']],
+            itemBuilder: (context, index) {
+
+              var currentnot=box.get(notekeys[index]);
+              return NoteCard(
+              noteColor: Dummydb
+                  .noteColors[(currentnot)['ColorIndex']],
               // from dummy db to notecard
-                    title: Dummydb.notlist[index]['title'],
-                    des: Dummydb.notlist[index]['des'],
-                    date: Dummydb.notlist[index]['date'],
-                    ondelete: () {
-                      setState(() {
-                        Dummydb.notlist.removeAt(index);
-                      });
-                    },
-                    onedit: () {
-                      //controller is single
-                      selectedIndex=Dummydb.notlist[index]['ColorIndex'];
-              
-                      titlecontroller.text = Dummydb.notlist[index]['title'];
-                      descontroller.text = Dummydb.notlist[index]['des'];
-                      datecontroller.text = Dummydb.notlist[index]['date'];
-                      //OR
-                      //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
-                      //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
-                      //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
-                      customBttomSheet(context, isedit: true, itemindex: index);
-                    },
-                    
-                  ),
-            ),
+              title: currentnot['title'],
+              des: currentnot['des'],   
+              date: currentnot['date'],
+              ondelete: () {
+                setState(() {
+               box.delete(notekeys[index]);
+               notekeys = box.keys.toList();
+               
+
+                });
+              },
+              onedit: () {
+                //controller is single
+                selectedIndex = currentnot['ColorIndex'];
+            
+                titlecontroller.text = currentnot['title'];
+                descontroller.text = currentnot['des'];
+                datecontroller.text = currentnot['date'];        
+                //OR
+                //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
+                //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
+                //  titlecontroller =TextEditingController(text: Dummydb.notlist[index]['title'] );
+                customBttomSheet(context, isedit: true, itemindex: index);
+              },
+            );
+            },
             separatorBuilder: (context, index) => SizedBox(
                   height: 10,
                 ),
-            itemCount: Dummydb.notlist.length),
+            itemCount: notekeys.length),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-           selectedIndex=0;
+            selectedIndex = 0;
 
             titlecontroller
                 .clear(); // to clear controller before opening bottoum sheet
@@ -119,7 +139,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   TextField(
                     controller: datecontroller,
+                    readOnly: true,
                     decoration: InputDecoration(
+                      
+                      suffixIcon: IconButton( onPressed: () async{ 
+                       var date=  await showDatePicker(context: context, firstDate:DateTime(2000), lastDate: DateTime.now());
+                       if (date!=null) {
+                         String showdate= DateFormat('dd/MM/yyyy').format(date);
+                         datecontroller.text=showdate;
+                       }
+                       }, icon: Icon(Icons.calendar_month),),
+                      
                       labelText: 'Date',
                       border: OutlineInputBorder(
                           borderSide: BorderSide(),
@@ -190,18 +220,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: InkWell(
                           onTap: () {
                             isedit
-                                ? Dummydb.notlist[itemindex!] = {
-                                    'title': titlecontroller.text,
-                                    'des': descontroller.text,
-                                    'date': datecontroller.text ,
-                                     'ColorIndex': selectedIndex
-                                  }
-                                : Dummydb.notlist.add({
+                                ? box.put(notekeys[itemindex!], {'title': titlecontroller.text,
+                                   'des': descontroller.text,
+                                   'date': datecontroller.text,
+                                    'ColorIndex': selectedIndex
+                                    })
+                                 //Dummydb.notlist[itemindex!] = {
+                                  //  'title': titlecontroller.text,
+                                  //  'des': descontroller.text,
+                                  //  'date': datecontroller.text,
+                                  //   'ColorIndex': selectedIndex
+                                //  }
+                                : box.add({
                                     'title': titlecontroller.text,
                                     'des': descontroller.text,
                                     'date': datecontroller.text,
                                     'ColorIndex': selectedIndex
-                                  });
+                                  }); //step 3
+
+                            notekeys = box.keys.toList();
                             setState(() {});
 
                             Navigator.pop(context);
